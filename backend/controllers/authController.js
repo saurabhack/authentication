@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
-import userModel from "../models/user.model"
+import userModel from "../models/user.model.js"
 export async function register(req,res){
     const {name,email,password}=req.body
     if(!name || !email || !password ){
@@ -21,8 +21,9 @@ export async function register(req,res){
             sameSite:process.env.NODE_ENV==='production' ? 'none' : 'strict',
             maxAge:7*24*60*60*1000
         })
+        return res.json({success:true,message:user})
     } catch (error) {
-        res.json({success:false,message:error.message})
+        return res.json({success:false,message:error.message})
     }
 }
 export async function login(req,res){
@@ -53,5 +54,15 @@ export async function login(req,res){
 }
 
 export async function logOut(req,res){
-
+    try {
+        res.clearCookie('token',{
+            httpOnly:true,
+            secure:process.env.NODE_ENV==='production',
+            sameSite:process.env.NODE_ENV=='production'?
+            'none':'strict'
+        })
+        return res.json({success:true,message:"Logged Out"})
+    } catch (error) {
+        return res.json({success:false,message:error.message})
+    }
 }
